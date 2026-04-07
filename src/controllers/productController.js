@@ -96,46 +96,46 @@ const getAllProducts = async (req, res) => {
 };
 
 // GET PRODUCT BY ID
-// const getProductById = async (req, res) => {
-//   try {
-//     const { id } = req.params;
+const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-//     const [products] = await pool.execute(
-//       `
-//       SELECT 
-//         p.id,
-//         p.name,
-//         p.description,
-//         p.price,
-//         p.stock,
-//         p.category_id,
-//         c.name AS category_name,
-//         p.created_at,
-//         p.updated_at
-//       FROM products p
-//       LEFT JOIN categories c ON p.category_id = c.id
-//       WHERE p.id = ?
-//       `,
-//       [id]
-//     );
+    const [products] = await pool.execute(
+      `
+      SELECT 
+        p.id,
+        p.name,
+        p.description,
+        p.price,
+        p.stock,
+        p.category_id,
+        c.name AS category_name,
+        p.created_at,
+        p.updated_at
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.id = ?
+      `,
+      [id]
+    );
 
-//     if (products.length === 0) {
-//       return res.status(404).json({
-//         message: "Không tìm thấy sản phẩm",
-//       });
-//     }
+    if (products.length === 0) {
+      return res.status(404).json({
+        message: "Không tìm thấy sản phẩm",
+      });
+    }
 
-//     return res.status(200).json({
-//       message: "Lấy chi tiết sản phẩm thành công",
-//       product: products[0],
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: "Lỗi server khi lấy chi tiết sản phẩm",
-//       error: error.message,
-//     });
-//   }
-// };
+    return res.status(200).json({
+      message: "Lấy chi tiết sản phẩm thành công",
+      product: products[0],
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Lỗi server khi lấy chi tiết sản phẩm",
+      error: error.message,
+    });
+  }
+};
 
 
 const getProductsByCategoryId = async (req, res) => {
@@ -277,6 +277,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   createProduct,
   getAllProducts,
+  getProductById,
   getProductsByCategoryId,
   updateProduct,
   deleteProduct,

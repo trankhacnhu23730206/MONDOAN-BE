@@ -83,21 +83,21 @@ const register = async (req, res) => {
 // LOGIN
 const login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
+    if (!email || !password) {
       return res.status(400).json({
-        message: "Vui lòng nhập username và password",
+        message: "Vui lòng nhập email và password",
       });
     }
 
-    const [users] = await pool.execute("SELECT * FROM users WHERE user_name = ?", [
-      username
+    const [users] = await pool.execute("SELECT * FROM users WHERE user_name = ? OR email = ?", [
+      email, email
     ]);
 
     if (users.length === 0) {
       return res.status(401).json({
-        message: "Sai username hoặc password",
+        message: "Sai email hoặc password",
       });
     }
 
