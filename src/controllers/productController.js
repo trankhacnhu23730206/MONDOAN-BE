@@ -3,7 +3,7 @@ const pool = require("../config/db");
 // CREATE PRODUCT
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, stock, category_id } = req.body;
+    const { name, description, price, stock, category_id, thumbnail_url } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({
@@ -41,9 +41,9 @@ const createProduct = async (req, res) => {
     }
 
     const [result] = await pool.execute(
-      `INSERT INTO products (name, description, price, stock, category_id)
-       VALUES (?, ?, ?, ?, ?)`,
-      [name.trim(), description || null, Number(price), Number(stock), category_id]
+      `INSERT INTO products (name, description, price, stock, category_id, thumbnail_url)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [name.trim(), description || null, Number(price), Number(stock), category_id, thumbnail_url || null]
     );
 
     return res.status(201).json({
@@ -55,6 +55,7 @@ const createProduct = async (req, res) => {
         price: Number(price),
         stock: Number(stock),
         category_id,
+        thumbnail_url: thumbnail_url || null,
       },
     });
   } catch (error) {
@@ -74,6 +75,7 @@ const getAllProducts = async (req, res) => {
         p.name,
         p.description,
         p.price,
+        p.thumbnail_url,
         p.category_id,
         c.name AS category_name,
         p.created_at,
@@ -108,6 +110,7 @@ const getProductById = async (req, res) => {
         p.description,
         p.price,
         p.stock,
+        p.thumbnail_url,
         p.category_id,
         c.name AS category_name,
         p.created_at,
@@ -152,6 +155,7 @@ const getProductsByCategoryId = async (req, res) => {
         p.description,
         p.price,
         p.stock,
+        p.thumbnail_url,
         p.category_id,
         c.name AS category_name,
         p.created_at,
@@ -175,11 +179,55 @@ const getProductsByCategoryId = async (req, res) => {
   }
 };
 
+// SEARCH PRODUCTS
+const getSearchProducts = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || !q.trim()) {
+      return res.status(400).json({
+        message: "Vui lòng cung cấp từ khóa tìm kiếm",
+      });
+    }
+
+    const [products] = await pool.execute(
+      `
+      SELECT 
+        p.id,
+        p.name,
+        p.description,
+        p.price,
+        p.stock,
+        p.thumbnail_url,
+        p.category_id,
+        c.name AS category_name,
+        p.created_at,
+        p.updated_at
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.name LIKE ? OR p.description LIKE ?
+      ORDER BY p.id DESC
+      `,
+      [`%${q.trim()}%`, `%${q.trim()}%`]
+    );
+
+    return res.status(200).json({
+      message: "Tìm kiếm sản phẩm thành công",
+      products,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Lỗi server khi tìm kiếm sản phẩm",
+      error: error.message,
+    });
+  }
+};
+
 // UPDATE PRODUCT
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, stock, category_id } = req.body;
+    const { name, description, price, stock, category_id, thumbnail_url } = req.body;
 
     const [products] = await pool.execute(
       "SELECT * FROM products WHERE id = ?",
@@ -229,9 +277,9 @@ const updateProduct = async (req, res) => {
 
     await pool.execute(
       `UPDATE products 
-       SET name = ?, description = ?, price = ?, stock = ?, category_id = ?
+       SET name = ?, description = ?, price = ?, stock = ?, category_id = ?, thumbnail_url = ?
        WHERE id = ?`,
-      [name.trim(), description || null, Number(price), Number(stock), category_id, id]
+      [name.trim(), description || null, Number(price), Number(stock), category_id, thumbnail_url || null, id]
     );
 
     return res.status(200).json({
@@ -279,6 +327,7 @@ module.exports = {
   getAllProducts,
   getProductById,
   getProductsByCategoryId,
+  getSearchProducts,
   updateProduct,
   deleteProduct,
 };
