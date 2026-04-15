@@ -179,6 +179,52 @@ const getProductsByCategoryId = async (req, res) => {
   }
 };
 
+// GET PRODUCTS BY NAME
+const getProductsByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        message: "Vui lòng cung cấp tên sản phẩm",
+      });
+    }
+
+    const keyword = name.trim();
+
+    const [products] = await pool.execute(
+      `
+      SELECT
+        p.id,
+        p.name,
+        p.description,
+        p.price,
+        p.stock,
+        p.thumbnail_url,
+        p.category_id,
+        c.name AS category_name,
+        p.created_at,
+        p.updated_at
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      WHERE p.name LIKE ?
+      ORDER BY p.id DESC
+      `,
+      [`%${keyword}%`]
+    );
+
+    return res.status(200).json({
+      message: "Lấy sản phẩm theo tên thành công",
+      products,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Lỗi server khi lấy sản phẩm theo tên",
+      error: error.message,
+    });
+  }
+};
+
 // SEARCH PRODUCTS
 const getSearchProducts = async (req, res) => {
   try {
@@ -327,6 +373,7 @@ module.exports = {
   getAllProducts,
   getProductById,
   getProductsByCategoryId,
+  getProductsByName,
   getSearchProducts,
   updateProduct,
   deleteProduct,

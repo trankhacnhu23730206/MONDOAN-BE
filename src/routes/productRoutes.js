@@ -8,6 +8,7 @@ const {
   deleteProduct,
   getProductById,
   getProductsByCategoryId,
+  getProductsByName,
   getSearchProducts,
 } = require("../controllers/productController");
 
@@ -15,6 +16,7 @@ const { verifyAccessToken } = require("../middlewares/authMiddleware");
 
 router.get("/", getAllProducts);
 router.get("/search", getSearchProducts);
+router.get("/name/:name", getProductsByName);
 router.get("/product/:id", getProductById);
 router.get("/:categoryId", getProductsByCategoryId);
 router.post("/", verifyAccessToken, createProduct);

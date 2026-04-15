@@ -199,7 +199,7 @@ const updateCartItem = async (req, res) => {
     return res.status(200).json({
       message: "Cập nhật giỏ hàng thành công",
     });
-  } catch (error) {
+  } catch (error) { 
     await connection.rollback();
     return res.status(error.status || 500).json({
       message: error.message || "Lỗi server khi cập nhật giỏ hàng",

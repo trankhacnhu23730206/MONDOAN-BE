@@ -6,6 +6,11 @@ const fail = (status, message) => {
   throw error;
 };
 
+const mapPaymentRow = (payment) => ({
+  ...payment,
+  method: payment.provider,
+});
+
 // POST /api/payments/order/:orderId/confirm
 // Dùng cho BANK_TRANSFER / VNPAY / MOMO ở mức demo hoặc callback nội bộ
 const confirmPayment = async (req, res) => {
@@ -13,7 +18,7 @@ const confirmPayment = async (req, res) => {
 
   try {
     const { orderId } = req.params;
-    const { transaction_code, provider_response } = req.body;
+    const { transaction_code, provider } = req.body;
 
     await connection.beginTransaction();
 
@@ -26,7 +31,7 @@ const confirmPayment = async (req, res) => {
 
     const order = orders[0];
 
-    if (order.status === "cancelled") {
+    if (order.order_status === "cancelled") {
       fail(400, "Đơn hàng đã bị hủy");
     }
 
@@ -43,35 +48,31 @@ const confirmPayment = async (req, res) => {
       [orderId]
     );
 
-    const providerResponseText = provider_response
-      ? JSON.stringify(provider_response)
-      : null;
+    const paymentProvider = provider || order.payment_method;
 
     if (payments.length === 0) {
       await connection.execute(
         `INSERT INTO payments
-        (order_id, user_id, method, amount, status, transaction_code, provider_response, paid_at)
-        VALUES (?, ?, ?, ?, 'paid', ?, ?, NOW())`,
+        (order_id, provider, transaction_code, amount, status, paid_at)
+        VALUES (?, ?, ?, ?, 'success', NOW())`,
         [
           order.id,
-          req.user.id,
-          order.payment_method,
-          Number(order.total_amount),
+          paymentProvider,
           transaction_code || null,
-          providerResponseText,
+          Number(order.total_amount),
         ]
       );
     } else {
       await connection.execute(
         `UPDATE payments
-         SET status = 'paid',
+         SET provider = ?,
+             status = 'success',
              transaction_code = ?,
-             provider_response = ?,
              paid_at = NOW()
          WHERE id = ?`,
         [
+          paymentProvider,
           transaction_code || null,
-          providerResponseText,
           payments[0].id,
         ]
       );
@@ -88,6 +89,7 @@ const confirmPayment = async (req, res) => {
       message: "Xác nhận thanh toán thành công",
       payment: {
         order_id: Number(orderId),
+        provider: paymentProvider,
         payment_status: "paid",
         transaction_code: transaction_code || null,
       },
@@ -109,25 +111,24 @@ const getMyPayments = async (req, res) => {
       `SELECT
         p.id,
         p.order_id,
-        p.method,
+        p.provider,
         p.amount,
         p.status,
         p.transaction_code,
         p.paid_at,
         p.created_at,
-        p.updated_at,
-        o.status AS order_status,
+        o.order_status,
         o.payment_status
       FROM payments p
       INNER JOIN orders o ON o.id = p.order_id
-      WHERE p.user_id = ?
+      WHERE o.user_id = ?
       ORDER BY p.id DESC`,
       [req.user.id]
     );
 
     return res.status(200).json({
       message: "Lấy danh sách thanh toán thành công",
-      payments,
+      payments: payments.map(mapPaymentRow),
     });
   } catch (error) {
     return res.status(500).json({
@@ -146,14 +147,12 @@ const getMyPaymentByOrderId = async (req, res) => {
       `SELECT
         p.id,
         p.order_id,
-        p.method,
+        p.provider,
         p.amount,
         p.status,
         p.transaction_code,
-        p.provider_response,
         p.paid_at,
-        p.created_at,
-        p.updated_at
+        p.created_at
       FROM payments p
       INNER JOIN orders o ON o.id = p.order_id
       WHERE p.order_id = ? AND o.user_id = ?
@@ -163,7 +162,7 @@ const getMyPaymentByOrderId = async (req, res) => {
 
     return res.status(200).json({
       message: "Lấy thông tin thanh toán thành công",
-      payments,
+      payments: payments.map(mapPaymentRow),
     });
   } catch (error) {
     return res.status(500).json({

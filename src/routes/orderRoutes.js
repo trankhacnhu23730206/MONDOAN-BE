@@ -19,11 +19,18 @@ router.patch("/:id/cancel", cancelMyOrder);
 module.exports = router;
 
 // {
-//   "receiver_name": "Tran Khac Nhu",
-//   "receiver_phone": "0909123456",
-//   "shipping_address": "123 Nguyen Trai, Q1, TP.HCM",
-//   "note": "Giao giờ hành chính",
+//   "shipping_full_name": "Tran Khac Nhu",
+//   "shipping_phone": "0909123456",
+//   "shipping_address_line1": "123 Nguyen Trai",
+//   "shipping_address_line2": "Tang 5",
+//   "shipping_ward": "Ben Thanh",
+//   "shipping_district": "Quan 1",
+//   "shipping_city": "TP.HCM",
+//   "shipping_country": "Viet Nam",
+//   "note": "Giao gio hanh chinh",
 //   "payment_method": "COD",
+//   "shipping_fee": 0,
+//   "discount_amount": 0,
 //   "items": [
 //     { "product_id": 1, "quantity": 2 },
 //     { "product_id": 3, "quantity": 1 }

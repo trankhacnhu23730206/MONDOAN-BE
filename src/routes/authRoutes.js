@@ -6,6 +6,7 @@ const {
   login,
   refreshAccessToken,
   getMe,
+  updateMe,
   logout,
 } = require("../controllers/authController");
 
@@ -16,5 +17,6 @@ router.post("/login", login);
 router.post("/refresh-token", refreshAccessToken);
 router.post("/logout", logout);
 router.get("/me", verifyAccessToken, getMe);
+router.put("/me", verifyAccessToken, updateMe);
 
 module.exports = router;
