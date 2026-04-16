@@ -30,6 +30,18 @@ const verifyAccessToken = (req, res, next) => {
   }
 };
 
+const verifyAdmin = (req, res, next) => {
+  verifyAccessToken(req, res, () => {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({
+        message: "Bạn không có quyền thực hiện hành động này (chỉ dành cho admin)",
+      });
+    }
+    next();
+  });
+};
+
 module.exports = {
   verifyAccessToken,
+  verifyAdmin,
 };

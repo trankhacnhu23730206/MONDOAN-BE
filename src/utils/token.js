@@ -6,6 +6,7 @@ const generateAccessToken = (user) => {
     {
       id: user.id,
       username: user.username,
+      role: user.role || "customer",
     },
     process.env.JWT_ACCESS_SECRET,
     {
@@ -19,6 +20,7 @@ const generateRefreshToken = (user) => {
     {
       id: user.id,
       username: user.username,
+      role: user.role || "customer",
     },
     process.env.JWT_REFRESH_SECRET,
     {

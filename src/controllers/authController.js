@@ -111,6 +111,7 @@ const register = async (req, res) => {
     const newUser = {
       id: result.insertId,
       username,
+      role: "customer",
     };
 
     const accessToken = generateAccessToken(newUser);
@@ -169,6 +170,7 @@ const login = async (req, res) => {
     const payloadUser = {
       id: user.id,
       username: user.user_name,
+      role: user.role || "customer",
     };
 
 

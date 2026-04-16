@@ -9,12 +9,12 @@ const {
   deleteCategory,
 } = require("../controllers/categoryController");
 
-const { verifyAccessToken } = require("../middlewares/authMiddleware");
+const { verifyAccessToken, verifyAdmin } = require("../middlewares/authMiddleware");
 
 router.get("/", getAllCategories);
 router.get("/:id", getCategoryById);
-router.post("/", verifyAccessToken, createCategory);
-router.put("/:id", verifyAccessToken, updateCategory);
-router.delete("/:id", verifyAccessToken, deleteCategory);
+router.post("/", verifyAdmin, createCategory);
+router.put("/:id", verifyAdmin, updateCategory);
+router.delete("/:id", verifyAdmin, deleteCategory);
 
 module.exports = router;

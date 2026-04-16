@@ -15,7 +15,7 @@ const { verifyAccessToken } = require("../middlewares/authMiddleware");
 router.post("/register", register);
 router.post("/login", login);
 router.post("/refresh-token", refreshAccessToken);
-router.post("/logout", logout);
+router.post("/logout", verifyAccessToken, logout);
 router.get("/me", verifyAccessToken, getMe);
 router.put("/me", verifyAccessToken, updateMe);
 
