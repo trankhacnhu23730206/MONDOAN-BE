@@ -521,17 +521,19 @@ const getMyOrderById = async (req, res) => {
 
     const [items] = await pool.execute(
       `SELECT
-        id,
-        order_id,
-        product_id,
-        product_name,
-        product_sku,
-        unit_price,
-        quantity,
-        line_total
-      FROM order_items
-      WHERE order_id = ?
-      ORDER BY id ASC`,
+        oi.id,
+        oi.order_id,
+        oi.product_id,
+        oi.product_name,
+        oi.product_sku,
+        oi.unit_price,
+        oi.quantity,
+        oi.line_total,
+        p.thumbnail_url
+      FROM order_items oi
+      LEFT JOIN products p ON oi.product_id = p.id
+      WHERE oi.order_id = ?
+      ORDER BY oi.id ASC`,
       [id]
     );
 
