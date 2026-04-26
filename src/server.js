@@ -9,6 +9,7 @@ const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const chatbotRoutes = require("./routes/chatbotRoutes");
 
 const { notFound, errorHandler } = require("./middlewares/errorMiddleware");
 
@@ -44,6 +45,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
