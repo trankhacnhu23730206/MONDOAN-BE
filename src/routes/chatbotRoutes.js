@@ -1,8 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-const { askChatbot } = require("../controllers/chatbotController");
+const {
+    chatWithAI,
+    getChatbotHealth,
+} = require("../controllers/chatbotController");
 
-router.post("/ask", askChatbot);
+router.get("/health", getChatbotHealth);
+
+// Route chính FE đang gọi:
+router.post("/", chatWithAI);
+
+// Route phụ, để nếu FE cũ còn gọi /ask thì vẫn chạy:
+router.post("/ask", chatWithAI);
 
 module.exports = router;
